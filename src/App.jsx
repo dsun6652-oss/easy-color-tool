@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { HexColorPicker } from 'react-colorful'
+import { useI18n } from './useI18n'
 import './App.css'
 
 // 解析 HEX (#fff, #ffffff)
@@ -124,6 +125,7 @@ const DEFAULT_RGB = 'rgb(88, 166, 255)'
 const DEFAULT_HSL = 'hsl(214, 100%, 67%)'
 
 function App() {
+  const { t, lang, setLang } = useI18n()
   const pickerPopoverRef = useRef(null)
   const [input, setInput] = useState('')
   const [hex, setHex] = useState('')
@@ -183,9 +185,9 @@ function App() {
       setRgb('')
       setHsl('')
       setPreviewColor(null)
-      setError('无法解析颜色，请使用 HEX / RGB / HSL 格式')
+      setError(t('errorParse'))
     }
-  }, [input, updateFromRgb])
+  }, [input, updateFromRgb, t])
 
   const copyToClipboard = useCallback(async (text) => {
     if (!text) return
@@ -194,7 +196,7 @@ function App() {
       setCopiedFormat(text)
       setTimeout(() => setCopiedFormat(null), 2000)
     } catch {
-      setError('复制失败')
+      setError(t('errorCopy'))
     }
   }, [])
 
@@ -221,17 +223,26 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>颜色格式转换</h1>
-        <p className="subtitle">HEX ↔ RGB ↔ HSL 互转，实时预览，一键复制</p>
+        <div className="header-top">
+          <h1>{t('title')}</h1>
+          <button
+            className="lang-switcher"
+            onClick={() => setLang(lang === 'zh' ? 'en' : 'zh')}
+            title={lang === 'zh' ? 'Switch to English' : '切换到中文'}
+          >
+            {lang === 'zh' ? 'EN' : '中'}
+          </button>
+        </div>
+        <p className="subtitle">{t('subtitle')}</p>
       </header>
 
       {pickerOpen && (
         <div className="picker-overlay">
           <div ref={pickerPopoverRef} className="picker-popover">
             <div className="picker-header">
-              <span>拾色器</span>
+              <span>{t('colorPicker')}</span>
               <button onClick={closeColorPicker} className="btn btn-ghost picker-close">
-                完成
+                {t('done')}
               </button>
             </div>
             <HexColorPicker
@@ -246,12 +257,12 @@ function App() {
       <div className="toolbar">
         <div className="toolbar-left">
           <button onClick={resetToDefault} className="btn btn-secondary">
-            重置示例
+            {t('resetExample')}
           </button>
         </div>
         <div className="toolbar-right">
           <button onClick={clearAll} className="btn btn-ghost">
-            清空
+            {t('clear')}
           </button>
         </div>
       </div>
@@ -266,13 +277,13 @@ function App() {
       <div className="color-container">
         <div className="panel input-panel">
           <div className="panel-header">
-            <span>输入颜色</span>
+            <span>{t('inputColor')}</span>
           </div>
           <div className="input-row">
             <input
               type="text"
               className="color-input"
-              placeholder="#ffffff 或 rgb(255,255,255) 或 hsl(0,0%,100%)"
+              placeholder={t('inputPlaceholder')}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
@@ -281,14 +292,14 @@ function App() {
               className={`color-preview ${previewColor ? 'color-preview-clickable' : 'color-preview-placeholder'}`}
               style={previewColor ? { backgroundColor: previewColor } : undefined}
               onClick={openColorPicker}
-              title={previewColor ? `点击打开拾色器 (${previewColor})` : '点击打开拾色器'}
+              title={previewColor ? `${t('clickPicker')} (${previewColor})` : t('clickPicker')}
             />
           </div>
         </div>
 
         <div className="panel output-panel">
           <div className="panel-header">
-            <span>转换结果</span>
+            <span>{t('outputResult')}</span>
           </div>
           <div className="output-list">
             {hex && (
@@ -299,9 +310,9 @@ function App() {
                   <button
                     onClick={() => copyToClipboard(hex)}
                     className="btn btn-copy"
-                    title="复制 HEX"
+                    title={t('copyHex')}
                   >
-                    {copiedFormat === hex ? '已复制' : '复制'}
+                    {copiedFormat === hex ? t('copied') : t('copy')}
                   </button>
                 </div>
               </div>
@@ -314,9 +325,9 @@ function App() {
                   <button
                     onClick={() => copyToClipboard(rgb)}
                     className="btn btn-copy"
-                    title="复制 RGB"
+                    title={t('copyRgb')}
                   >
-                    {copiedFormat === rgb ? '已复制' : '复制'}
+                    {copiedFormat === rgb ? t('copied') : t('copy')}
                   </button>
                 </div>
               </div>
@@ -329,16 +340,16 @@ function App() {
                   <button
                     onClick={() => copyToClipboard(hsl)}
                     className="btn btn-copy"
-                    title="复制 HSL"
+                    title={t('copyHsl')}
                   >
-                    {copiedFormat === hsl ? '已复制' : '复制'}
+                    {copiedFormat === hsl ? t('copied') : t('copy')}
                   </button>
                 </div>
               </div>
             )}
             {!hasResult && (
               <span className="placeholder">
-                输入任意格式颜色后，将显示 HEX / RGB / HSL 转换结果
+                {t('placeholder')}
               </span>
             )}
           </div>
@@ -351,23 +362,23 @@ function App() {
             className="preview-color-block preview-color-block-clickable"
             style={{ backgroundColor: previewColor }}
             onClick={openColorPicker}
-            title="点击打开拾色器"
+            title={t('clickPicker')}
           />
-          <span className="preview-label">实时预览 · 点击色块可打开拾色器</span>
+          <span className="preview-label">{t('previewHint')}</span>
         </div>
       )}
 
       <footer className="footer">
-        <span>支持 HEX、RGB、HSL 互转，实时预览，一键复制</span>
+        <span>{t('footerDesc')}</span>
         <p className="footer-sponsor">
-          若对你有帮助，欢迎
+          {t('supportAuthor')}
           <a
             href="https://afdian.com/a/sundd1898"
             target="_blank"
             rel="noopener noreferrer"
             className="footer-sponsor-link"
           >
-            支持作者（爱发电）
+            {t('supportLink')}
           </a>
         </p>
       </footer>
