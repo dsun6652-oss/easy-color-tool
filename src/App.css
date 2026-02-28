@@ -228,12 +228,111 @@
   opacity: 0.6;
 }
 
+/* 拾色器弹窗 */
+.picker-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 1rem;
+}
+
+.picker-popover {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+}
+
+.picker-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.picker-close {
+  padding: 0.35rem 0.6rem;
+  font-size: 0.8rem;
+}
+
+/* react-colorful 深色主题覆盖 */
+.picker-colorful.react-colorful {
+  width: 220px;
+  height: 180px;
+}
+
+.picker-colorful .react-colorful__saturation {
+  border-radius: 8px 8px 0 0;
+  border-bottom-color: var(--border);
+  box-shadow: inset 0 0 0 1px var(--border);
+}
+
+.picker-colorful .react-colorful__hue {
+  height: 20px;
+  border-radius: 0 0 8px 8px;
+  margin-top: 8px;
+}
+
+.picker-colorful .react-colorful__pointer {
+  border-color: var(--border);
+  background-color: var(--bg-primary);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.picker-colorful .react-colorful__pointer-fill {
+  border: 2px solid var(--text-primary);
+}
+
 .color-preview {
   flex-shrink: 0;
   width: 40px;
   height: 40px;
   border-radius: 6px;
   border: 1px solid var(--border);
+}
+
+.color-preview-clickable {
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.color-preview-clickable:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+
+.color-preview-placeholder {
+  cursor: pointer;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--bg-tertiary),
+    var(--bg-tertiary) 4px,
+    var(--bg-secondary) 4px,
+    var(--bg-secondary) 8px
+  );
+  border: 1px dashed var(--border);
+}
+
+.color-preview-placeholder:hover {
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+}
+
+.preview-color-block-clickable {
+  cursor: pointer;
+  transition: box-shadow 0.15s ease;
+}
+
+.preview-color-block-clickable:hover {
+  box-shadow: 0 0 0 3px var(--accent);
 }
 
 .output-panel .panel-header {

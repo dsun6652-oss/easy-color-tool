@@ -1,4 +1,5 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
+import { HexColorPicker } from 'react-colorful'
 import './App.css'
 
 // 解析 HEX (#fff, #ffffff)
@@ -123,6 +124,7 @@ const DEFAULT_RGB = 'rgb(88, 166, 255)'
 const DEFAULT_HSL = 'hsl(214, 100%, 67%)'
 
 function App() {
+  const pickerPopoverRef = useRef(null)
   const [input, setInput] = useState('')
   const [hex, setHex] = useState('')
   const [rgb, setRgb] = useState('')
@@ -130,6 +132,30 @@ function App() {
   const [previewColor, setPreviewColor] = useState(null)
   const [error, setError] = useState('')
   const [copiedFormat, setCopiedFormat] = useState(null)
+  const [pickerOpen, setPickerOpen] = useState(false)
+
+  const openColorPicker = useCallback(() => {
+    if (!previewColor) setInput(DEFAULT_HEX)
+    setPickerOpen(true)
+  }, [previewColor])
+
+  const closeColorPicker = useCallback(() => setPickerOpen(false), [])
+
+  const handlePickerColorChange = useCallback((hexValue) => {
+    setInput(hexValue)
+  }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (pickerOpen && pickerPopoverRef.current && !pickerPopoverRef.current.contains(e.target)) {
+        closeColorPicker()
+      }
+    }
+    if (pickerOpen) {
+      document.addEventListener('mousedown', handleClickOutside)
+      return () => document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [pickerOpen, closeColorPicker])
 
   const updateFromRgb = useCallback(({ r, g, b }) => {
     setHex(rgbToHex(r, g, b))
@@ -199,6 +225,24 @@ function App() {
         <p className="subtitle">HEX ↔ RGB ↔ HSL 互转，实时预览，一键复制</p>
       </header>
 
+      {pickerOpen && (
+        <div className="picker-overlay">
+          <div ref={pickerPopoverRef} className="picker-popover">
+            <div className="picker-header">
+              <span>拾色器</span>
+              <button onClick={closeColorPicker} className="btn btn-ghost picker-close">
+                完成
+              </button>
+            </div>
+            <HexColorPicker
+              color={previewColor || DEFAULT_HEX}
+              onChange={handlePickerColorChange}
+              className="picker-colorful"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="toolbar">
         <div className="toolbar-left">
           <button onClick={resetToDefault} className="btn btn-secondary">
@@ -233,13 +277,12 @@ function App() {
               onChange={(e) => setInput(e.target.value)}
               spellCheck={false}
             />
-            {previewColor && (
-              <div
-                className="color-preview"
-                style={{ backgroundColor: previewColor }}
-                title={previewColor}
-              />
-            )}
+            <div
+              className={`color-preview ${previewColor ? 'color-preview-clickable' : 'color-preview-placeholder'}`}
+              style={previewColor ? { backgroundColor: previewColor } : undefined}
+              onClick={openColorPicker}
+              title={previewColor ? `点击打开拾色器 (${previewColor})` : '点击打开拾色器'}
+            />
           </div>
         </div>
 
@@ -305,10 +348,12 @@ function App() {
       {previewColor && (
         <div className="preview-block">
           <div
-            className="preview-color-block"
+            className="preview-color-block preview-color-block-clickable"
             style={{ backgroundColor: previewColor }}
+            onClick={openColorPicker}
+            title="点击打开拾色器"
           />
-          <span className="preview-label">实时预览</span>
+          <span className="preview-label">实时预览 · 点击色块可打开拾色器</span>
         </div>
       )}
 
